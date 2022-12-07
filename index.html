@@ -1,24 +1,24 @@
+
 <!DOCTYPE html>
 <html>
-
 <head>
-	<title></title>
+<title></title>
+<link preload rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" data-n-g="" />
 </head>
-
-<body oncontextmenu="return false;" class="hide-mouse">
-	<main>
-		<div id="root">
-			<div class="flex" id="RENDER_VIDEO">
-              	<video autoplay id="ISC_VIDEO">
-                    <source></source>
-                </video>
-			</div>
-			<div id="RENDER_WARE">
-				<canvas></canvas>
-			</div>
-		</div>
-	</main>
-	<script>
+<body oncontextmenu="if (!window.__cfRLUnblockHandlers) return false; return false;" class="hide-mouse" data-cf-modified-47c16c66a06fc8df715684fc-="">
+<main>
+<div id="root">
+<div class="flex" id="RENDER_VIDEO">
+<video autoplay id="ISC_VIDEO">
+<source></source>
+</video>
+</div>
+<div id="RENDER_WARE">
+<canvas></canvas>
+</div>
+</div>
+</main>
+<script type="47c16c66a06fc8df715684fc-text/javascript">
             /*
                 Grand Thef Auto III on WebGl, open-source
                 https://github.com/ovidiuux
@@ -29,7 +29,7 @@
                 devTools: false,
                 cdnurl: "https://raw.githubusercontent.com/ovidiuux/Grand-Theft-Auto-III/main/cdn/"
             }
-            let BoxRunned = false;
+            let InstanceWebGL = false;
             document.title = configEngine.name;
 		    const root = document.querySelector("#root");
             const videoElement = document.querySelector("#ISC_VIDEO");
@@ -44,24 +44,24 @@
             });
             document.addEventListener("keydown", (keydown)=> {
                 if (keydown.key === "Enter") {
-                    if (!BoxRunned) {
-                        BoxRunned = true;
+                    if (!InstanceWebGL) {
+                        InstanceWebGL = true;
                         root.requestFullscreen();
-                        playVideoInFrame(AssetsData[0].file_name);
+                        playVideoInFrame(AssetsData.movies[0]);
                     }
                 }
             })
             videoElement.onended = ()=> {
-                  playVideoInFrame(AssetsData[0].file_name);
+                  playVideoInFrame(AssetsData.movies[0]);
             }
            function playVideoInFrame(data) {
-                videoElement.src = configEngine.cdnurl + data;
+                videoElement.src = configEngine.cdnurl + data.dir + data.file_name;
                 videoElement.autoplay = true
                 videoElement.play();
            }
         
 	</script>
-	<style>
+<style>
 		html,
         body {
             padding:0;
@@ -88,6 +88,5 @@
             left:0;
         }
 	</style>
-</body>
-
+<script src="/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js" data-cf-settings="47c16c66a06fc8df715684fc-|49" defer=""></script></body>
 </html>
