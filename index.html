@@ -4,21 +4,17 @@
 <head>
 <title></title>
 <link preload rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" data-n-g="" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha512-dLxUelApnYxpLt6K2iomGngnHO83iUvZytA3YjDUCjT0HDOHKXnVYdf3hU4JjM8uEhxf9nD1/ey98U3t2vZ0qQ==" crossorigin="anonymous" referrerpolicy="no-referrer" type="ba9dad2b52c5cb3a1d8ad326-text/javascript"></script>
 </head>
-<body oncontextmenu="if (!window.__cfRLUnblockHandlers) return false; return false;" class="hide-mouse" data-cf-modified-47c16c66a06fc8df715684fc-="">
-<main>
-<div id="root">
+<body oncontextmenu="if (!window.__cfRLUnblockHandlers) return false; return false;" data-cf-modified-ba9dad2b52c5cb3a1d8ad326-="">
+<main id="RENDER_WARE">
 <div class="flex" id="RENDER_VIDEO">
 <video autoplay id="ISC_VIDEO">
 <source></source>
 </video>
 </div>
-<div id="RENDER_WARE">
-<canvas></canvas>
-</div>
-</div>
 </main>
-<script type="47c16c66a06fc8df715684fc-text/javascript">
+<script type="ba9dad2b52c5cb3a1d8ad326-text/javascript">
             /*
                 Grand Thef Auto III on WebGl, open-source
                 https://github.com/ovidiuux
@@ -26,19 +22,27 @@
             */
             const configEngine = {
                 name: "Grand Theft Auto III",
-                devTools: false,
+                devTools: true,
                 cdnurl: "https://raw.githubusercontent.com/ovidiuux/Grand-Theft-Auto-III/main/cdn/"
             }
             let InstanceWebGL = false;
+            let InstanceWebGLVideo = false;
             document.title = configEngine.name;
-		    const root = document.querySelector("#root");
-            const videoElement = document.querySelector("#ISC_VIDEO");
-            const canvas = document.querySelector("#RENDER_WARE canvas");
+            if(!configEngine.devTools) {
+                document.body.className = document.body.className + " hide-mouse"
+            }
+            const webGLVideo = document.querySelector("#ISC_VIDEO");
+            const RENDER_WARE = document.querySelector("#RENDER_WARE");
             const elem = document.documentElement;
+            navigator.mediaSession.setActionHandler('pause', function () {  });
+            navigator.mediaSession.setActionHandler('play', function () {});
             let AssetsData = {};
             fetch(configEngine.cdnurl + "assets.json")
             .then((response) => response.json())
             .then((data) => {
+                if(configEngine.devTools) {
+                    console.log(data)
+                } 
                 AssetsData = data;
 
             });
@@ -46,18 +50,57 @@
                 if (keydown.key === "Enter") {
                     if (!InstanceWebGL) {
                         InstanceWebGL = true;
-                        root.requestFullscreen();
+                        RENDER_WARE.requestFullscreen();
                         playVideoInFrame(AssetsData.movies[0]);
                     }
                 }
+                if (InstanceWebGL) {
+                    if (!webGLVideo.paused && webGLVideo.duration > 0 ) {
+                        webGLVideo.currentTime = webGLVideo.duration
+                    }
+                }
+                
             })
-            videoElement.onended = ()=> {
-                  playVideoInFrame(AssetsData.movies[0]);
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+                const renderer = new THREE.WebGLRenderer();
+            webGLVideo.onended = ()=> {
+               playVideoInFrameNext();
             }
+            webGLVideo.onloaded = ()=> {
+                webGLVideo.width = window.innerWidth;
+                webGLVideo.height = window.innerHeight;
+            }
+            webGLVideo.onerror = ()=> {
+               playVideoInFrameNext();
+            }
+            function gameSceneCreator() {
+                renderer.setSize( window.innerWidth, window.innerHeight );
+                RENDER_WARE.appendChild( renderer.domElement );
+                const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+                const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+                const cube = new THREE.Mesh( geometry, material );
+                scene.add( cube );
+                camera.position.z = 5;
+	            renderer.render( scene, camera );
+            }
+            function playVideoInFrameNext() {
+                 if(String(webGLVideo.src).includes(AssetsData.movies[0].file_name)) {
+                      playVideoInFrame(AssetsData.movies[1]);
+                } else {
+                     if(String(webGLVideo.src).includes(AssetsData.movies[1].file_name)) {
+                         InstanceWebGLVideo = true;
+                         webGLVideo.src = "";
+                         webGLVideo.pause();
+                         document.querySelector("#RENDER_VIDEO").remove();
+                         gameSceneCreator();
+                     }
+                }
+            }
+            webGLVideo.onpause = ()=> { if (!InstanceWebGLVideo) {webGLVideo.play()}}
            function playVideoInFrame(data) {
-                videoElement.src = configEngine.cdnurl + data.dir + data.file_name;
-                videoElement.autoplay = true
-                videoElement.play();
+                webGLVideo.src = configEngine.cdnurl + data.dir + data.file_name;
+                webGLVideo.play();
            }
         
 	</script>
@@ -66,7 +109,8 @@
         body {
             padding:0;
             margin:0;
-			background-color: #000;
+            height:100%;
+			background-color: #fff;
 		}
         .hide-mouse {
             cursor: none;
@@ -74,19 +118,25 @@
 		.flex {
             display: flex;
             justify-content: center;
+            width: 100%;
+            height: 100%;
             align-items: center;
         }
 
 		#ISC_VIDEO {
-			min-height: 100%;
+            width: 100%;
+            object-fit: fill;
+            height: 100%;
 		}
         #RENDER_VIDEO {
             position: fixed;
             top: 0;
             bottom:0;
             right:0;
+            height: 100%;
+            width:100%;
             left:0;
         }
 	</style>
-<script src="/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js" data-cf-settings="47c16c66a06fc8df715684fc-|49" defer=""></script></body>
+<script src="/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js" data-cf-settings="ba9dad2b52c5cb3a1d8ad326-|49" defer=""></script></body>
 </html>
