@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Grand Thef Auto III</title>
+</head>
+
+<body>
+	<main>
+		<div id="root">
+			<div id="RENDER_VIDEO">
+				<video id="ISC_VIDEO" />
+			</div>
+			<div id="RENDER_WARE">
+				<canvas></canvas>
+			</div>
+		</div>
+	</main>
+	<script>
+		    const root = document.querySelector("#root");
+            const videoElement = document.querySelector("#ISC_VIDEO");
+            const canvas = document.querySelector("#RENDER_WARE canvas");
+            const elem = document.documentElement;
+            videoElement.src = "https://github.com/ovidiuux/Grand-Theft-Auto-III/blob/main/cdn/Logo.mpg.m4v?raw=true"
+            videoElement.autoplay = true
+            videoElement.play();
+        
+	</script>
+	<style>
+		html {
+            padding:0;
+            margin:0;
+			background-color: #000;
+		}
+
+		root {}
+
+		#ISC_VIDEO {
+			
+			min-height: 100%;
+		}
+	</style>
+</body>
+
+</html>
