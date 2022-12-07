@@ -2,17 +2,17 @@
   "movies": [
     {
       "file_name": "Logo.mpg.m4v",
-      "dir": "/movies"
+      "dir": "movies/"
     },
     {
       "file_name": "GTATitles.mpg.m4v",
-      "dir": "/movies"
+      "dir": "movies/"
     }
   ],
   "txd": [
       {
         "file_name": "main.png",
-        "dir": "/txd"
+        "dir": "txd/"
       }
     ]
 }
