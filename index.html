@@ -2,14 +2,16 @@
 <html>
 
 <head>
-	<title>Grand Thef Auto III</title>
+	<title></title>
 </head>
 
-<body>
+<body oncontextmenu="return false;" class="hide-mouse">
 	<main>
 		<div id="root">
-			<div id="RENDER_VIDEO">
-				<video id="ISC_VIDEO" />
+			<div class="flex" id="RENDER_VIDEO">
+              	<video autoplay id="ISC_VIDEO">
+                    <source></source>
+                </video>
 			</div>
 			<div id="RENDER_WARE">
 				<canvas></canvas>
@@ -17,28 +19,74 @@
 		</div>
 	</main>
 	<script>
+            /*
+                Grand Thef Auto III on WebGl, open-source
+                https://github.com/ovidiuux
+                2022
+            */
+            const configEngine = {
+                name: "Grand Theft Auto III",
+                devTools: false,
+                cdnurl: "https://raw.githubusercontent.com/ovidiuux/Grand-Theft-Auto-III/main/cdn/"
+            }
+            let BoxRunned = false;
+            document.title = configEngine.name;
 		    const root = document.querySelector("#root");
             const videoElement = document.querySelector("#ISC_VIDEO");
             const canvas = document.querySelector("#RENDER_WARE canvas");
             const elem = document.documentElement;
-            videoElement.src = "https://github.com/ovidiuux/Grand-Theft-Auto-III/blob/main/cdn/Logo.mpg.m4v?raw=true"
-            videoElement.autoplay = true
-            videoElement.play();
+            let AssetsData = {};
+            fetch(configEngine.cdnurl + "assets.json")
+            .then((response) => response.json())
+            .then((data) => {
+                AssetsData = data;
+
+            });
+            document.addEventListener("keydown", (keydown)=> {
+                if (keydown.key === "Enter") {
+                    if (!BoxRunned) {
+                        BoxRunned = true;
+                        root.requestFullscreen();
+                        playVideoInFrame(AssetsData[0].file_name);
+                    }
+                }
+            })
+            videoElement.onended = ()=> {
+                  playVideoInFrame(AssetsData[0].file_name);
+            }
+           function playVideoInFrame(data) {
+                videoElement.src = configEngine.cdnurl + data;
+                videoElement.autoplay = true
+                videoElement.play();
+           }
         
 	</script>
 	<style>
-		html {
+		html,
+        body {
             padding:0;
             margin:0;
 			background-color: #000;
 		}
-
-		root {}
+        .hide-mouse {
+            cursor: none;
+        }
+		.flex {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
 		#ISC_VIDEO {
-			
 			min-height: 100%;
 		}
+        #RENDER_VIDEO {
+            position: fixed;
+            top: 0;
+            bottom:0;
+            right:0;
+            left:0;
+        }
 	</style>
 </body>
 
