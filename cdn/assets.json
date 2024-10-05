@@ -9,6 +9,16 @@
       "dir": "movies/"
     }
   ],
+  "data": [
+    {
+      "file_name": "default.ide",
+      "dir": "data/"
+    },
+    {
+      "file_name": "carcols.dat",
+      "dir": "data/"
+    }
+  ],
   "txd": [
       {
         "file_name": "main.png",
