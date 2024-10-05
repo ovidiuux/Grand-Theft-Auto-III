@@ -73,14 +73,7 @@ SelectModel(model)
 function
 StartUI()
 {
-	let objects = document.getElementById('objects');
-	removeChildren(objects);
-	for(let model in ModelInfosName){
-		let option = document.createElement('option');
-		option.innerHTML = model;
-		option.onclick = function(){ SelectModel(model); };
-		objects.appendChild(option);
-	}
+
 }
 
 function
@@ -206,7 +199,6 @@ loadVehicleViewer(idefile, CB)
 		LoadObjectTypes(text);
 		loadText("carcols.dat", function(text){
 			LoadVehicleColours(text);
-			StartUI();
 			CB();
 		});
 	});

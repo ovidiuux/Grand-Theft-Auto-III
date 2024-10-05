@@ -409,7 +409,7 @@ function
 loadDFF(filename, cb)
 {
 	let req = new XMLHttpRequest();
-	req.open("GET", ModelsDirPath + "/" + filename, true);
+	req.open("GET", configEngine.cdnurl + "models/" + filename, true);
 	req.responseType = "arraybuffer";
 
 	req.onload = function(oEvent){
