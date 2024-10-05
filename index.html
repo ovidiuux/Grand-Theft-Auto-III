@@ -96,6 +96,9 @@
             loadGameFiles();
         }
         function loadGameFiles() {
+            const audio = new Audio(configEngine.cdnurl + "/audio/City.mp3")
+            audio.volume = 0.1;
+            audio.autoplay = true;
             loadCar = loadCarIII;
             loadVehicleViewer("default.ide", function () {
                 SelectModel("kuruma");
