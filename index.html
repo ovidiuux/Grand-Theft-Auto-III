@@ -1,121 +1,134 @@
-
 <!DOCTYPE html>
 <html>
+
 <head>
-<title></title>
-<link preload rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" data-n-g="" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous" referrerpolicy="no-referrer" type="text/javascript"></script>
+    <title></title>
+    <link preload rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
+        data-n-g="" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous"
+        referrerpolicy="no-referrer" type="text/javascript"></script>
+    <script src="rwstream/main.js" type="text/javascript"></script>
+    <script src="rwstream/loaddata.js" type="text/javascript"></script>
+    <script src="rwstream/rwstream.js" type="text/javascript"></script>
+    <script src="rwstream/rw.js" type="text/javascript"></script>
+
 </head>
-<body oncontextmenu="if (!window.__cfRLUnblockHandlers) return false; return false;" data-cf-modified-ba9dad2b52c5cb3a1d8ad326-="">
-<main id="RENDER_WARE">
-<div class="flex" id="RENDER_VIDEO">
-<video autoplay id="ISC_VIDEO">
-<source></source>
-</video>
-</div>
-</main>
-<script type="text/javascript">
-            /*
-                Grand Thef Auto III on WebGl, open-source
-                https://github.com/ovidiuux
-                2022
-            */
-            const configEngine = {
-                name: "Grand Theft Auto III",
-                devTools: true,
-                cdnurl: "https://raw.githubusercontent.com/ovidiuux/Grand-Theft-Auto-III/main/cdn/"
-            }
-            let InstanceWebGL = false;
-            let InstanceWebGLVideo = false;
-            document.title = configEngine.name;
-            if(!configEngine.devTools) {
-                document.body.className = document.body.className + " hide-mouse"
-            }
-            const webGLVideo = document.querySelector("#ISC_VIDEO");
-            const RENDER_WARE = document.querySelector("#RENDER_WARE");
-            const elem = document.documentElement;
-            navigator.mediaSession.setActionHandler('pause', function () {  });
-            navigator.mediaSession.setActionHandler('play', function () {});
-            let AssetsData = {};
-            fetch(configEngine.cdnurl + "assets.json")
+
+<body oncontextmenu="if (!window.__cfRLUnblockHandlers) return false; return false;"
+    data-cf-modified-ba9dad2b52c5cb3a1d8ad326-="">
+    <main id="RENDER_WARE">
+        <div class="flex" id="RENDER_VIDEO">
+            <video autoplay id="ISC_VIDEO">
+                <source>
+                </source>
+            </video>
+        </div>
+    </main>
+    <script type="text/javascript">
+        /*
+            Grand Thef Auto III on WebGl, open-source
+            https://github.com/ovidiuux
+            2022
+        */
+        const configEngine = {
+            name: "Grand Theft Auto III",
+            devTools: true,
+            cdnurl: "https://raw.githubusercontent.com/ovidiuux/Grand-Theft-Auto-III/main/cdn/"
+        }
+        let InstanceWebGL = false;
+        let InstanceWebGLVideo = false;
+        document.title = configEngine.name;
+        if (!configEngine.devTools) {
+            document.body.className = document.body.className + " hide-mouse"
+        }
+        const webGLVideo = document.querySelector("#ISC_VIDEO");
+        const RENDER_WARE = document.querySelector("#RENDER_WARE");
+        const elem = document.documentElement;
+        navigator.mediaSession.setActionHandler('pause', function () { });
+        navigator.mediaSession.setActionHandler('play', function () { });
+        let AssetsData = {};
+        fetch(configEngine.cdnurl + "assets.json")
             .then((response) => response.json())
             .then((data) => {
-                if(configEngine.devTools) {
+                if (configEngine.devTools) {
                     console.log(data)
-                } 
+                }
                 AssetsData = data;
 
             });
-            document.addEventListener("keyup", (keydown)=> {
-                if (keydown.key === "Enter") {
-                    if (!InstanceWebGL) {
-                        InstanceWebGL = true;
-                        RENDER_WARE.requestFullscreen();
-                        playVideoInFrame(AssetsData.movies[0]);
-                    }
-                }
-                if (InstanceWebGL) {
-                    if (!webGLVideo.paused && webGLVideo.duration > 0 ) {
-                        webGLVideo.currentTime = webGLVideo.duration
-                    }
-                }
-                
-            })
-                const scene = new THREE.Scene();
-                const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-                const renderer = new THREE.WebGLRenderer();
-            webGLVideo.onended = ()=> {
-               playVideoInFrameNext();
-            }
-            webGLVideo.onloaded = ()=> {
-                webGLVideo.width = window.innerWidth;
-                webGLVideo.height = window.innerHeight;
-            }
-            webGLVideo.onerror = ()=> {
-               playVideoInFrameNext();
-            }
-            function gameSceneCreator() {
-                renderer.setSize( window.innerWidth, window.innerHeight );
-                RENDER_WARE.appendChild( renderer.domElement );
-                const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-                const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-                const cube = new THREE.Mesh( geometry, material );
-                scene.add( cube );
-                camera.position.z = 5;
-	            renderer.render( scene, camera );
-            }
-            function playVideoInFrameNext() {
-                 if(String(webGLVideo.src).includes(AssetsData.movies[0].file_name)) {
-                      playVideoInFrame(AssetsData.movies[1]);
-                } else {
-                     if(String(webGLVideo.src).includes(AssetsData.movies[1].file_name)) {
-                         InstanceWebGLVideo = true;
-                         webGLVideo.src = "";
-                         webGLVideo.pause();
-                         document.querySelector("#RENDER_VIDEO").remove();
-                         gameSceneCreator();
-                     }
+        document.addEventListener("keyup", (keydown) => {
+            if (keydown.key === "Enter") {
+                if (!InstanceWebGL) {
+                    InstanceWebGL = true;
+                    RENDER_WARE.requestFullscreen();
+                    playVideoInFrame(AssetsData.movies[0]);
                 }
             }
-            webGLVideo.onpause = ()=> { if (!InstanceWebGLVideo) {webGLVideo.play()}}
-           function playVideoInFrame(data) {
-                webGLVideo.src = configEngine.cdnurl + data.dir + data.file_name;
-                webGLVideo.play();
-           }
-        
-	</script>
-<style>
-		html,
+            if (InstanceWebGL) {
+                if (!webGLVideo.paused && webGLVideo.duration > 0) {
+                    webGLVideo.currentTime = webGLVideo.duration
+                }
+            }
+
+        })
+        const scene = new THREE.Scene();
+        const renderer = new THREE.WebGLRenderer();
+        webGLVideo.onended = () => {
+            playVideoInFrameNext();
+        }
+        webGLVideo.onloaded = () => {
+            webGLVideo.width = window.innerWidth;
+            webGLVideo.height = window.innerHeight;
+        }
+        webGLVideo.onerror = () => {
+            playVideoInFrameNext();
+        }
+        function gameSceneCreator() {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            RENDER_WARE.appendChild(renderer.domElement);
+            loadGameFiles()
+        }
+        function loadGameFiles() {
+            loadCar = loadCarIII;
+  loadVehicleViewer("default.ide", function() {
+    SelectModel("cheetah");
+  });
+        }
+        function playVideoInFrameNext() {
+            if (String(webGLVideo.src).includes(AssetsData.movies[0].file_name)) {
+                playVideoInFrame(AssetsData.movies[1]);
+            } else {
+                if (String(webGLVideo.src).includes(AssetsData.movies[1].file_name)) {
+                    InstanceWebGLVideo = true;
+                    webGLVideo.src = "";
+                    webGLVideo.pause();
+                    document.querySelector("#RENDER_VIDEO").remove();
+                    gameSceneCreator();
+                }
+            }
+        }
+        webGLVideo.onpause = () => { if (!InstanceWebGLVideo) { webGLVideo.play() } }
+        function playVideoInFrame(data) {
+            webGLVideo.src = configEngine.cdnurl + data.dir + data.file_name;
+            webGLVideo.play();
+        }
+
+    </script>
+    <style>
+        html,
         body {
-            padding:0;
-            margin:0;
-            height:100%;
-			background-color: #fff;
-		}
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            background-color: #fff;
+            overflow: hidden;
+        }
+
         .hide-mouse {
             cursor: none;
         }
-		.flex {
+
+        .flex {
             display: flex;
             justify-content: center;
             width: 100%;
@@ -123,19 +136,21 @@
             align-items: center;
         }
 
-		#ISC_VIDEO {
+        #ISC_VIDEO {
             width: 100%;
             object-fit: fill;
             height: 100%;
-		}
+        }
+
         #RENDER_VIDEO {
             position: fixed;
             top: 0;
-            bottom:0;
-            right:0;
+            bottom: 0;
+            right: 0;
             height: 100%;
-            width:100%;
-            left:0;
+            width: 100%;
+            left: 0;
         }
-	</style>
+    </style>
+
 </html>

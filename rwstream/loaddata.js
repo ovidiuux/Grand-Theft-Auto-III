@@ -184,7 +184,7 @@ function
 loadText(filename, cb)
 {
 	let req = new XMLHttpRequest();
-	req.open("GET", DataDirPath + "/" + filename, true);
+	req.open("GET", configEngine.cdnurl + "data/" + filename, true);
 	req.responseType = "text";
 
 	req.onload = function(oEvent){
