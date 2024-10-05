@@ -20,6 +20,7 @@ loadTexture(url)
 		new Uint8Array([255, 255, 255, 255]));
 
 	const image = new Image();
+    image.crossOrigin = "anonymous";
 	image.onload = function() {
 		gl.bindTexture(gl.TEXTURE_2D, texid);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,

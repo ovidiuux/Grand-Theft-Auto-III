@@ -93,7 +93,7 @@ console.log("InitRW()");
 	canvas.addEventListener("mouseout", mouseUp, false);
 	canvas.addEventListener("mousemove", mouseMove, false);
 
-	whitetex = loadTexture("textures/white.png");
+	whitetex = loadTexture(configEngine.cdnurl + "textures/white.png");
 
 	defaultProgram = loadShaders(defaultVS, defaultFS);
 	envMapProgram = loadShaders(envVS, envFS);
@@ -231,9 +231,9 @@ removeChildren(x)
 function
 main()
 {
-	let ul = document.getElementById('frames');
-	removeChildren(ul);
-	displayFrames(myclump.frame, ul);
+	//let ul = document.getElementById('frames');
+	//removeChildren(ul);
+	//displayFrames(myclump.frame, ul);
 
 	if(!running){
 		running = true;

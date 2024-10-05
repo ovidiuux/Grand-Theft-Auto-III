@@ -1,22 +1,22 @@
 function
 AttachPlugins()
 {
-	frameTKList[rwID_NODENAME] = { streamRead NodeNameStreamRead };
-	geometryTKList[rwID_BINMESHPLUGIN] = { streamRead rpMeshRead };
-	materialTKList[rwID_MATERIALEFFECTSPLUGIN] = { streamRead rpMatfxMaterialStreamRead };
-	materialTKList[rwID_ENVMAT] = { streamRead envMatStreamRead };
-	materialTKList[rwID_SPECMAT] = { streamRead specMatStreamRead };
-	atomicTKList[rwID_MATERIALEFFECTSPLUGIN] = { streamRead rpMatfxAtomicStreamRead };
+	frameTKList[rwID_NODENAME] = { streamRead: NodeNameStreamRead };
+	geometryTKList[rwID_BINMESHPLUGIN] = { streamRead: rpMeshRead };
+	materialTKList[rwID_MATERIALEFFECTSPLUGIN] = { streamRead: rpMatfxMaterialStreamRead };
+	materialTKList[rwID_ENVMAT] = { streamRead: envMatStreamRead };
+	materialTKList[rwID_SPECMAT] = { streamRead: specMatStreamRead };
+	atomicTKList[rwID_MATERIALEFFECTSPLUGIN] = { streamRead: rpMatfxAtomicStreamRead };
 }
 
 function
 RwStreamCreate(buffer)
 {
 	return {
-		buffer buffer,
-		view new DataView(buffer),
-		offset 0,
-		eof false
+		buffer: buffer,
+		view: new DataView(buffer),
+		offset: 0,
+		eof: false
 	};
 }
 
@@ -29,7 +29,7 @@ RwStreamSkip(stream, len)
 function
 RwStreamReadUInt8(stream)
 {
-	if(stream.offset = stream.buffer.byteLength){
+	if(stream.offset >= stream.buffer.byteLength){
 		stream.eof = true;
 		return null;
 	}
@@ -41,7 +41,7 @@ RwStreamReadUInt8(stream)
 function
 RwStreamReadUInt16(stream)
 {
-	if(stream.offset = stream.buffer.byteLength){
+	if(stream.offset >= stream.buffer.byteLength){
 		stream.eof = true;
 		return null;
 	}
@@ -53,7 +53,7 @@ RwStreamReadUInt16(stream)
 function
 RwStreamReadUInt32(stream)
 {
-	if(stream.offset = stream.buffer.byteLength){
+	if(stream.offset >= stream.buffer.byteLength){
 		stream.eof = true;
 		return null;
 	}
@@ -65,7 +65,7 @@ RwStreamReadUInt32(stream)
 function
 RwStreamReadInt32(stream)
 {
-	if(stream.offset = stream.buffer.byteLength){
+	if(stream.offset >= stream.buffer.byteLength){
 		stream.eof = true;
 		return null;
 	}
@@ -77,7 +77,7 @@ RwStreamReadInt32(stream)
 function
 RwStreamReadReal(stream)
 {
-	if(stream.offset = stream.buffer.byteLength){
+	if(stream.offset >= stream.buffer.byteLength){
 		stream.eof = true;
 		return null;
 	}
@@ -89,13 +89,13 @@ RwStreamReadReal(stream)
 function
 RwStreamReadString(stream, length)
 {
-	if(stream.offset = stream.buffer.byteLength){
+	if(stream.offset >= stream.buffer.byteLength){
 		stream.eof = true;
 		return null;
 	}
 	let a = new Uint8Array(stream.buffer, stream.offset, length);
-	let s = ;
-	for(let i = 0; i  length && a[i] != 0; i++)
+	let s = "";
+	for(let i = 0; i < length && a[i] != 0; i++)
 		s += String.fromCharCode(a[i]);
 	stream.offset += length;
 	return s;
@@ -112,18 +112,18 @@ rwStreamReadChunkHeader(stream)
 	let version = 0;
 	let build = 0;
 	if((id & 0xFFFF0000) == 0){
-		version = id8;
+		version = id<<8;
 		build = 0;
 	}else{
-		version = ((id14) & 0x3FF00) + 0x30000 
-			((id16) & 3);
+		version = ((id>>14) & 0x3FF00) + 0x30000 |
+			((id>>16) & 3);
 		build = id & 0xFFFF;
 	}
 	return {
-		type t,
-		length l,
-		version version,
-		build build,
+		type: t,
+		length: l,
+		version: version,
+		build: build,
 	};
 }
 
@@ -146,7 +146,7 @@ rwPluginRegistryReadDataChunks(tklist, stream, object)
 	if((header = RwStreamFindChunk(stream, rwID_EXTENSION)) == null)
 		return null;
 	let end = stream.offset + header.length;
-	while(stream.offset  end){
+	while(stream.offset < end){
 		header = rwStreamReadChunkHeader(stream);
 		if(header.type in tklist && tklist[header.type].streamRead){		
 			if(!tklist[header.type].streamRead(stream, object, header.length))
@@ -174,7 +174,7 @@ rwFrameListStreamRead(stream)
 		return null;
 	let numFrames = RwStreamReadInt32(stream);
 	let frames = [];
-	for(let i = 0; i  numFrames; i++){
+	for(let i = 0; i < numFrames; i++){
 		let xx = RwStreamReadReal(stream);
 		let xy = RwStreamReadReal(stream);
 		let xz = RwStreamReadReal(stream);
@@ -196,11 +196,11 @@ rwFrameListStreamRead(stream)
 			wx, wy, wz, 1);
 		frames.push(frame);
 		let parent = RwStreamReadInt32(stream);
-		RwStreamReadInt32(stream);	 unused
-		if(parent = 0)
+		RwStreamReadInt32(stream);	// unused
+		if(parent >= 0)
 			RwFrameAddChild(frames[parent], frame);
 	}
-	for(let i = 0; i  numFrames; i++)
+	for(let i = 0; i < numFrames; i++)
 		if(!rwPluginRegistryReadDataChunks(frameTKList, stream, frames[i]))
 			return null;
 	return frames;
@@ -212,7 +212,7 @@ RwTextureStreamRead(stream)
 	let header;
 	if((header = RwStreamFindChunk(stream, rwID_STRUCT)) == null)
 		return null;
-	let flags = RwStreamReadUInt32(stream);	 we ignore this
+	let flags = RwStreamReadUInt32(stream);	// we ignore this
 	let name = rwStringStreamFindAndRead(stream);
 	if(name == null) return null;
 	let mask = rwStringStreamFindAndRead(stream);
@@ -230,12 +230,12 @@ RpMaterialStreamRead(stream)
 	if((header = RwStreamFindChunk(stream, rwID_STRUCT)) == null)
 		return null;
 	let mat = RpMaterialCreate();
-	RwStreamReadInt32(stream);	 flags, unused
+	RwStreamReadInt32(stream);	// flags, unused
 	mat.color[0] = RwStreamReadUInt8(stream);
 	mat.color[1] = RwStreamReadUInt8(stream);
 	mat.color[2] = RwStreamReadUInt8(stream);
 	mat.color[3] = RwStreamReadUInt8(stream);
-	RwStreamReadInt32(stream);	 unused
+	RwStreamReadInt32(stream);	// unused
 	let textured = RwStreamReadInt32(stream);
 	mat.surfaceProperties[0] = RwStreamReadReal(stream);
 	mat.surfaceProperties[1] = RwStreamReadReal(stream);
@@ -263,8 +263,8 @@ rpMaterialListStreamRead(stream)
 	while(numMaterials--)
 		indices.push(RwStreamReadInt32(stream));
 	let materials = []
-	for(let i = 0; i  indices.length; i++){
-		if(indices[i] = 0)
+	for(let i = 0; i < indices.length; i++){
+		if(indices[i] >= 0)
 			materials.push(materials[indices[i]]);
 		else{
 			if((header = RwStreamFindChunk(stream, rwID_MATERIAL)) == null)
@@ -288,15 +288,15 @@ RpGeometryStreamRead(stream)
 	let numTriangles = RwStreamReadInt32(stream);
 	let numVertices = RwStreamReadInt32(stream);
 	let numMorphTargets = RwStreamReadInt32(stream);
-	if(header.version  0x34000)
+	if(header.version < 0x34000)
 		RwStreamSkip(stream, 12);
-	if(flags & 0x01000000) return null;	 native geometry not supported
+	if(flags & 0x01000000) return null;	// native geometry not supported
 
 	let geo = RpGeometryCreate(flags, numMorphTargets);
 	geo.numVertices = numVertices;
 
 	if(geo.prelit)
-		for(let i = 0; i  numVertices; i++){
+		for(let i = 0; i < numVertices; i++){
 			let r = RwStreamReadUInt8(stream);
 			let g = RwStreamReadUInt8(stream);
 			let b = RwStreamReadUInt8(stream);
@@ -304,37 +304,37 @@ RpGeometryStreamRead(stream)
 			geo.prelit.push([r, g, b, a]);
 		}
 
-	for(let i = 0; i  geo.texCoords.length; i++){
+	for(let i = 0; i < geo.texCoords.length; i++){
 		let texCoords = geo.texCoords[i];
-		for(let j = 0; j  numVertices; j++){
+		for(let j = 0; j < numVertices; j++){
 			let u = RwStreamReadReal(stream);
 			let v = RwStreamReadReal(stream);
 			texCoords.push([u, v]);
 		}
 	}
 
-	for(let i = 0; i  numTriangles; i++){
+	for(let i = 0; i < numTriangles; i++){
 		let w1 = RwStreamReadUInt32(stream);
 		let w2 = RwStreamReadUInt32(stream);
-		let v1 = w116 & 0xFFFF;
+		let v1 = w1>>16 & 0xFFFF;
 		let v2 = w1 & 0xFFFF;
-		let v3 = w216 & 0xFFFF;
+		let v3 = w2>>16 & 0xFFFF;
 		let matid = w2 & 0xFFFF;
 		geo.triangles.push([v1, v2, v3, matid]);
 	}
 
-	for(let i = 0; i  numMorphTargets; i++){
+	for(let i = 0; i < numMorphTargets; i++){
 		let mt = geo.morphTargets[i];
 
-		RwStreamSkip(stream, 44 + 4 + 4);	 ignore bounding sphere and flags
-		for(let j = 0; j  numVertices; j++){
+		RwStreamSkip(stream, 4*4 + 4 + 4);	// ignore bounding sphere and flags
+		for(let j = 0; j < numVertices; j++){
 			let x = RwStreamReadReal(stream);
 			let y = RwStreamReadReal(stream);
 			let z = RwStreamReadReal(stream);
 			mt.vertices.push([x, y, z]);
 		}
 		if(mt.normals)
-			for(let j = 0; j  numVertices; j++){
+			for(let j = 0; j < numVertices; j++){
 				let x = RwStreamReadReal(stream);
 				let y = RwStreamReadReal(stream);
 				let z = RwStreamReadReal(stream);
@@ -364,8 +364,8 @@ rpMeshRead(stream, geo, length)
 		let numIndices = RwStreamReadInt32(stream);
 		let matid = RwStreamReadInt32(stream);
 		let m = {
-			indices [],
-			material geo.materials[matid]
+			indices: [],
+			material: geo.materials[matid]
 		};
 		while(numIndices--)
 			m.indices.push(RwStreamReadInt32(stream));
@@ -402,8 +402,8 @@ rpClumpAtomicStreamRead(stream, frames, geos)
 	let atomic = RpAtomicCreate();
 	let frame = RwStreamReadInt32(stream);
 	let geometry = RwStreamReadInt32(stream);
-	let flags = RwStreamReadInt32(stream);	 ignored
-	RwStreamReadInt32(stream);	 unused
+	let flags = RwStreamReadInt32(stream);	// ignored
+	RwStreamReadInt32(stream);	// unused
 	RpAtomicSetFrame(atomic, frames[frame]);
 	atomic.geometry = geos[geometry];
 
@@ -423,7 +423,7 @@ RpClumpStreamRead(stream)
 	let numAtomics = RwStreamReadInt32(stream);
 	let numLights = 0;
 	let numCameras = 0;
-	if(header.version  0x33000){
+	if(header.version > 0x33000){
 		numLights = RwStreamReadInt32(stream);
 		numCameras = RwStreamReadInt32(stream);
 	}
@@ -457,17 +457,17 @@ RpClumpStreamRead(stream)
 
 	rwFrameSynchLTM(clump.frame);
 
-	 TODO lights, cameras
+	// TODO? lights, cameras
 
 	return clump;
 }
 
 
+/*
+ * Plugins
+ */
 
-  Plugins
- 
-
- MatFX 
+/* MatFX */
 
 var rpMATFXEFFECTBUMPMAP         = 1;
 var rpMATFXEFFECTENVMAP          = 2;
@@ -480,31 +480,31 @@ function
 RpMatFXMaterialSetEffects(mat, effects)
 {
 	mat.matfx = {
-		type effects,
-		bump false,
-		env false,
-		dual false,
-		uvxform false
+		type: effects,
+		bump: false,
+		env: false,
+		dual: false,
+		uvxform: false
 	};
-	 TODO init the relevant fields here
+	// TODO: init the relevant fields here
 	switch(effects){
-	case rpMATFXEFFECTBUMPMAP
+	case rpMATFXEFFECTBUMPMAP:
 		mat.matfx.bump = true;
 		break;
-	case rpMATFXEFFECTENVMAP
+	case rpMATFXEFFECTENVMAP:
 		mat.matfx.env = true;
 		break;
-	case rpMATFXEFFECTBUMPENVMAP
+	case rpMATFXEFFECTBUMPENVMAP:
 		mat.matfx.bump = true;
 		mat.matfx.env = true;
 		break;
-	case rpMATFXEFFECTDUAL
+	case rpMATFXEFFECTDUAL:
 		mat.matfx.dual = true;
 		break;
-	case rpMATFXEFFECTUVTRANSFORM
+	case rpMATFXEFFECTUVTRANSFORM:
 		mat.matfx.uvxform = true;
 		break;
-	case rpMATFXEFFECTDUALUVTRANSFORM
+	case rpMATFXEFFECTDUALUVTRANSFORM:
 		mat.matfx.dual = true;
 		mat.matfx.uvxform = true;
 		break;
@@ -520,10 +520,10 @@ rpMatfxMaterialStreamRead(stream, mat, length)
 	RpMatFXMaterialSetEffects(mat, effects);
 	let mfx = mat.matfx;
 
-	for(let i = 0; i  2; i++){
+	for(let i = 0; i < 2; i++){
 		let type = RwStreamReadInt32(stream);
 		switch(type){
-		case rpMATFXEFFECTBUMPMAP
+		case rpMATFXEFFECTBUMPMAP:
 			mfx.bumpCoefficient = RwStreamReadReal(stream);
 			if(RwStreamReadInt32(stream)){
 				if((header = RwStreamFindChunk(stream, rwID_TEXTURE)) == null)
@@ -540,7 +540,7 @@ rpMatfxMaterialStreamRead(stream, mat, length)
 					return null;
 			}
 			break;
-		case rpMATFXEFFECTENVMAP
+		case rpMATFXEFFECTENVMAP:
 			mfx.envCoefficient = RwStreamReadReal(stream);
 			mfx.envFBalpha = RwStreamReadInt32(stream);
 			if(RwStreamReadInt32(stream)){
@@ -551,7 +551,7 @@ rpMatfxMaterialStreamRead(stream, mat, length)
 					return null;
 			}
 			break;
-		case rpMATFXEFFECTDUAL
+		case rpMATFXEFFECTDUAL:
 			mfs.srcBlend = RwStreamReadInt32(stream);
 			mfs.dstBlend = RwStreamReadInt32(stream);
 			if(RwStreamReadInt32(stream)){
@@ -578,7 +578,7 @@ rpMatfxAtomicStreamRead(stream, atomic, length)
 }
 
 
- GTA Node Name 
+/* GTA Node Name */
 
 function
 NodeNameStreamRead(stream, frame, length)
@@ -587,7 +587,7 @@ NodeNameStreamRead(stream, frame, length)
 	return frame;
 }
 
- GTA Env Map 
+/* GTA Env Map */
 
 function
 envMatStreamRead(stream, mat, length)
@@ -597,17 +597,17 @@ envMatStreamRead(stream, mat, length)
 	let transSclX = RwStreamReadReal(stream);
 	let transSclY = RwStreamReadReal(stream);
 	let shininess = RwStreamReadReal(stream);
-	RwStreamReadInt32(stream);	 ignore
+	RwStreamReadInt32(stream);	// ignore
 
 	mat.envMap = {
-		scale [ sclX, sclY ],
-		transScale [ transSclX, transSclY ],
-		shininess shininess
+		scale: [ sclX, sclY ],
+		transScale: [ transSclX, transSclY ],
+		shininess: shininess
 	};
 	return mat;
 }
 
- GTA Spec Map 
+/* GTA Spec Map */
 
 function
 specMatStreamRead(stream, mat, length)
@@ -616,8 +616,8 @@ specMatStreamRead(stream, mat, length)
 	let texname = RwStreamReadString(stream, 24);
 
 	mat.specMap = {
-		specularity specularity,
-		texture RwTextureRead(texname, )
+		specularity: specularity,
+		texture: RwTextureRead(texname, "")
 	};
 	return mat;
 }

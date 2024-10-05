@@ -31,36 +31,11 @@ LoadColors(cols)
 function
 SelectModel(model)
 {
-	let colortable = document.getElementById('colors');
-	removeChildren(colortable);
 
 	CurrentModel = ModelInfosName[model];
 	let col1 = [ 0, 0, 0, 255 ];
 	let col2 = [ 0, 0, 0, 255 ];
-	for(let i = 0; i < CurrentModel.colors.length; i++){
-		let c = CurrentModel.colors[i];
-		let c1 = VehicleColours[c[0]];
-		let c2 = VehicleColours[c[1]];
-		if(i == 0){
-			col1[0] = c1[0];
-			col1[1] = c1[1];
-			col1[2] = c1[2];
-			col2[0] = c2[0];
-			col2[1] = c2[1];
-			col2[2] = c2[2];
-		}
-		let tr = document.createElement('tr');
-		for(let j = 0; j < c.length; j++){
-			let td = document.createElement('td');
-			td.width = "16px";
-			td.height = "16px";
-			let col = VehicleColours[c[j]];
-			td.style = "background-color: rgb("+col[0]+","+col[1]+","+col[2]+")";
-			tr.appendChild(td);
-		}
-		tr.onclick = function() { LoadColors(c); };
-		colortable.appendChild(tr);
-	}
+
 
 	camDist = 5.0;
 	camPitch = 0.3;
